@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汐语 TideLog — 私有经期与健康管理</title>
+<meta name="description" content="汐语 (TideLog)：纯私有、零广告的经期与健康管理 App。数据只属于你自己。">
+<style>
+  :root {
+    --tide: #4E8FA3;
+    --tide-deep: #2F6675;
+    --tide-light: #C9E4EA;
+    --tide-mist: #EEF6F8;
+    --coral: #E88C7D;
+    --text: #2E3B42;
+    --text-sub: #8296A0;
+    --bg: #FAF8F5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hero {
+    text-align: center;
+    padding: 88px 24px 64px;
+    background: linear-gradient(180deg, var(--tide-mist), var(--bg));
+  }
+  .logo-ring {
+    width: 108px; height: 108px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--tide-light), var(--tide), var(--tide-deep));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 16px 40px rgba(78, 143, 163, .35);
+    font-size: 52px;
+  }
+  h1 { font-size: 34px; letter-spacing: 10px; font-weight: 700; }
+  .subtitle { color: var(--text-sub); letter-spacing: 2px; margin: 10px 0 26px; font-size: 15px; }
+  .slogan { color: var(--tide-deep); font-size: 17px; font-weight: 500; }
+  .btn {
+    display: inline-block;
+    margin: 8px 6px 0;
+    padding: 13px 34px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary {
+    background: var(--tide);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(78, 143, 163, .35);
+  }
+  .btn-ghost {
+    border: 1.5px solid var(--tide-light);
+    color: var(--tide-deep);
+  }
+  .version { color: var(--text-sub); font-size: 12px; margin-top: 14px; }
+  section { max-width: 880px; margin: 0 auto; padding: 48px 24px; }
+  h2 { text-align: center; font-size: 22px; margin-bottom: 32px; letter-spacing: 2px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #E9EDEC;
+    border-radius: 18px;
+    padding: 26px 22px;
+  }
+  .card .icon { font-size: 30px; margin-bottom: 12px; }
+  .card h3 { font-size: 16px; margin-bottom: 8px; }
+  .card p { font-size: 13px; color: var(--text-sub); }
+  .privacy {
+    background: #fff;
+    border: 1px solid #E9EDEC;
+    border-radius: 18px;
+    padding: 28px;
+    font-size: 14px;
+  }
+  .privacy strong { color: var(--tide-deep); }
+  .ios-steps { font-size: 13px; color: var(--text-sub); padding-left: 20px; }
+  .ios-steps li { margin: 6px 0; }
+  footer {
+    text-align: center;
+    color: var(--text-sub);
+    font-size: 12px;
+    padding: 40px 24px 56px;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="logo-ring">🌊</div>
+  <h1>汐语</h1>
+  <p class="subtitle">TideLog · 聆听身体的潮汐</p>
+  <p class="slogan">纯私有 · 零广告 · 数据只属于你自己</p>
+  <div style="margin-top: 34px;">
+    <a class="btn btn-primary" href="./tide_log.apk" download>⬇ 下载 Android APK</a>
+    <a class="btn btn-ghost" href="#ios">iOS 安装指引</a>
+  </div>
+  <p class="version">v0.1.0 · 支持 Android 7.0+ / iOS 13+</p>
+</header>
+
+<section>
+  <h2>为什么选择汐语</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="icon">🔒</div>
+      <h3>纯私有</h3>
+      <p>所有数据只存在你的手机和你的阿里云 OSS。没有账号体系，没有第三方服务器经手。</p>
+    </div>
+    <div class="card">
+      <div class="icon">🚫</div>
+      <h3>零广告零打扰</h3>
+      <p>没有开屏广告、社区、电商与推送。它只做一件事：安静地记录你的周期。</p>
+    </div>
+    <div class="card">
+      <div class="icon">🌊</div>
+      <h3>潮汐预测</h3>
+      <p>加权移动平均 + 异常周期过滤，冷启动即可用。经期、排卵日、易孕、安全期一目了然。</p>
+    </div>
+    <div class="card">
+      <div class="icon">📝</div>
+      <h3>多维打卡</h3>
+      <p>经量、痛经、情绪、身体症状、同房记录——对齐主流经期 App 的完整打卡维度。</p>
+    </div>
+    <div class="card">
+      <div class="icon">☁️</div>
+      <h3>加密云备份</h3>
+      <p>AES-256 本地加密后备份到你的私有 OSS，多端同步，换机无忧。</p>
+    </div>
+    <div class="card">
+      <div class="icon">📊</div>
+      <h3>周期洞察</h3>
+      <p>周期规律、经期天数趋势图，异常周期自动标红提醒，帮你了解自己的身体。</p>
+    </div>
+  </div>
+</section>
+
+<section id="ios">
+  <h2>iOS 安装指引</h2>
+  <div class="card">
+    <p style="margin-bottom: 12px;">由于汐语不上架 App Store，iOS 设备需通过以下方式安装：</p>
+    <ol class="ios-steps">
+      <li><strong>自签安装（推荐）</strong>：用数据线连接 iPhone 与电脑，通过 Xcode 或 AltStore 侧载 IPA 包；</li>
+      <li><strong>TestFlight 内测</strong>：若你收到了 TestFlight 邀请链接，直接在 App Store 安装 TestFlight 后打开链接；</li>
+      <li><strong>企业签 / 蒲公英</strong>：按分发渠道提供的说明安装并信任证书。</li>
+    </ol>
+    <p style="margin-top: 12px; font-size: 12px; color: var(--text-sub);">
+      提示：自签证书 7 天有效，需定期重签；个人 Apple ID 免费开发者账号即可完成侧载。
+    </p>
+  </div>
+</section>
+
+<section>
+  <h2>隐私承诺</h2>
+  <div class="privacy">
+    <p>
+      <strong>我们不收集任何数据。</strong>汐语没有自己的服务器，没有统计埋点，没有广告 SDK。
+      你的经期与打卡数据以 <strong>Isar 数据库</strong>形式仅存储在本机；
+      当你主动配置阿里云 OSS 后，数据会经 <strong>AES-256 加密</strong>备份到<strong>你自己的</strong>私有存储桶，
+      密钥只保存在你的手机安全芯片中——连开发者也无法读取。
+    </p>
+  </div>
+</section>
+
+<footer>
+  汐语 TideLog · 聆听身体的潮汐<br>
+  本页面为静态分发页，可托管于任意静态网站服务（如阿里云 OSS 静态网站托管）
+</footer>
+
+</body>
+</html>
