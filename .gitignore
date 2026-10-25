@@ -1,0 +1,13 @@
+# 私人文件（提示词原稿，不公开）
+提示词.txt
+
+# 构建产物与二进制大文件（落地页部署包、APK）
+landing-deploy.zip
+*.apk
+
+# IDE
+.idea/
+
+# 签名密钥与凭证（双保险，tide_log/.gitignore 已有）
+android/key.properties
+android/keystore/
