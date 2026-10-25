@@ -119,4 +119,67 @@ void main() {
     expect(provider.hasUnsyncedChanges, isFalse,
         reason: '同步时间晚于变更时间 → 已同步');
   });
+
+  group('历史补录（v1.1.1）', () {
+    test('补录整段历史经期成功，且预测立即有锚点', () async {
+      final today0 = normalizeDate(DateTime.now());
+      final err = await provider.addHistoricalPeriod(
+          addDays(today0, -28), addDays(today0, -24));
+      expect(err, isNull);
+      expect(provider.periods, hasLength(1));
+      expect(provider.prediction.hasAnchor, isTrue,
+          reason: '补录后算法立即有锚点，无需从今天开始记录');
+      expect(provider.prediction.phaseOn(addDays(today0, -26)),
+          CyclePhase.menstruation);
+    });
+
+    test('与已有记录重叠被拒绝', () async {
+      final today0 = normalizeDate(DateTime.now());
+      await provider.addHistoricalPeriod(
+          addDays(today0, -28), addDays(today0, -24));
+      final err = await provider.addHistoricalPeriod(
+          addDays(today0, -26), addDays(today0, -20));
+      expect(err, isNotNull);
+      expect(err, contains('重叠'));
+    });
+
+    test('经期长度超过 14 天被拒绝', () async {
+      final today0 = normalizeDate(DateTime.now());
+      final err = await provider.addHistoricalPeriod(
+          addDays(today0, -30), addDays(today0, -10));
+      expect(err, contains('14'));
+    });
+
+    test('开始日期晚于今天被拒绝', () async {
+      final today0 = normalizeDate(DateTime.now());
+      final err = await provider.addHistoricalPeriod(
+          addDays(today0, 1), addDays(today0, 3));
+      expect(err, contains('晚于今天'));
+    });
+
+    test('结束日期早于开始日期被拒绝', () async {
+      final today0 = normalizeDate(DateTime.now());
+      final err = await provider.addHistoricalPeriod(
+          addDays(today0, -5), addDays(today0, -8));
+      expect(err, contains('早于'));
+    });
+
+    test('存在进行中经期时不能开始新的一段', () async {
+      final today0 = normalizeDate(DateTime.now());
+      await provider.markPeriodStart(today0);
+      final err = await provider.markPeriodStart(addDays(today0, -40));
+      expect(err, contains('先结束'));
+      expect(provider.periods, hasLength(1));
+    });
+
+    test('删除经期记录', () async {
+      final today0 = normalizeDate(DateTime.now());
+      await provider.addHistoricalPeriod(
+          addDays(today0, -28), addDays(today0, -24));
+      final id = provider.periods.first.id;
+      await provider.deletePeriod(id);
+      expect(provider.periods, isEmpty);
+      expect(provider.prediction.hasAnchor, isFalse);
+    });
+  });
 }

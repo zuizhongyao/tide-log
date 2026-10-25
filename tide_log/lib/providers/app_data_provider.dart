@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../algorithms/period_calculator.dart';
+import '../core/constants.dart';
 import '../core/date_utils.dart';
 import '../models/daily_log.dart';
 import '../models/period_record.dart';
@@ -130,21 +132,63 @@ class AppDataProvider extends ChangeNotifier {
   // 经期事件操作
   // ---------------------------------------------------------------------------
 
-  /// 标记某日开始经期（已有覆盖该日的经期则忽略）。
-  Future<void> markPeriodStart(DateTime day) async {
+  /// 标记某日开始经期。返回 null 表示成功，否则为用户可读的错误信息。
+  Future<String?> markPeriodStart(DateTime day) async {
     final d = normalizeDate(day);
-    if (periodCovers(d)) return;
+    if (d.isAfter(normalizeDate(DateTime.now()))) {
+      return '开始日期不能晚于今天';
+    }
+    if (ongoingPeriod != null) {
+      return '已有进行中的经期，请先结束它再开始新的一段';
+    }
+    if (periodCovers(d)) {
+      return '该日期已被其他经期记录覆盖';
+    }
     await _db.periodRecords.save(PeriodRecord.create(d));
     await refresh();
+    return null;
   }
 
-  /// 结束进行中的经期（ endDate = 指定日，且不早于开始日）。
-  Future<void> markPeriodEnd(DateTime day) async {
+  /// 结束进行中的经期（endDate = 指定日，且不早于开始日）。
+  Future<String?> markPeriodEnd(DateTime day) async {
     final ongoing = _db.periodRecords.getOngoingSync();
-    if (ongoing == null) return;
+    if (ongoing == null) return '当前没有进行中的经期';
     final d = normalizeDate(day);
     await _db.periodRecords
         .save(ongoing..endDate = d.isBefore(ongoing.startDate) ? null : d);
+    await refresh();
+    return null;
+  }
+
+  /// 补录一段历史经期（供新用户导入过去数月的记录）。
+  /// 返回 null 表示成功，否则为用户可读的错误信息。
+  Future<String?> addHistoricalPeriod(DateTime start, DateTime end) async {
+    final s = normalizeDate(start);
+    final e = normalizeDate(end);
+    final today = normalizeDate(DateTime.now());
+
+    if (s.isAfter(today)) return '开始日期不能晚于今天';
+    if (e.isBefore(s)) return '结束日期不能早于开始日期';
+    final length = daysBetween(s, e) + 1;
+    if (length > PeriodDefaults.maxPeriodDurationDays) {
+      return '单次经期不能超过 ${PeriodDefaults.maxPeriodDurationDays} 天';
+    }
+    // 与已有记录重叠检查（进行中记录按覆盖上限窗口参与判断）
+    for (final r in _periods) {
+      final rEnd = r.endDate ?? addDays(r.startDate, PeriodDefaults.maxPeriodDurationDays);
+      if (!s.isAfter(rEnd) && !e.isBefore(r.startDate)) {
+        return '与已有经期记录（${DateFormat("MM-dd").format(r.startDate)} 开始）重叠';
+      }
+    }
+
+    await _db.periodRecords.save(PeriodRecord.create(s, end: e));
+    await refresh();
+    return null;
+  }
+
+  /// 删除一条经期记录（修正误录的历史）。
+  Future<void> deletePeriod(int id) async {
+    await _db.periodRecords.delete(id);
     await refresh();
   }
 

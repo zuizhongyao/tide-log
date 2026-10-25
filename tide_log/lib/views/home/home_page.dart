@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../algorithms/period_calculator.dart';
 import '../../core/constants.dart';
 import '../../core/theme.dart';
+import '../widgets/add_period_dialog.dart';
 import '../widgets/debug_panel_action.dart';
 import '../../models/daily_log.dart';
 import '../../models/tags.dart';
@@ -33,6 +34,21 @@ class HomePage extends StatelessWidget {
                   today: today,
                 ),
               ),
+              // 冷启动引导：补录历史经期，让算法从首次打开就有数据可用
+              if (!data.prediction.hasAnchor) ...[
+                const SizedBox(height: 8),
+                Center(
+                  child: OutlinedButton.icon(
+                    onPressed: () => showAddPeriodDialog(context),
+                    icon: const Icon(Icons.history_edu, size: 18),
+                    label: const Text('补录历史经期'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.tideDeep,
+                      side: const BorderSide(color: AppColors.tideLight),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               _PhaseAndSyncRow(data: data, today: today),
               const SizedBox(height: 16),
@@ -132,9 +148,15 @@ class QuickLogPanel extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: isPeriodDay
                       ? null
-                      : () => context
-                          .read<AppDataProvider>()
-                          .markPeriodStart(day),
+                      : () async {
+                          final error = await context
+                              .read<AppDataProvider>()
+                              .markPeriodStart(day);
+                          if (error != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(error)));
+                          }
+                        },
                   icon: const Icon(Icons.play_arrow_rounded, size: 20),
                   label: const Text('经期开始'),
                   style: OutlinedButton.styleFrom(
@@ -148,7 +170,15 @@ class QuickLogPanel extends StatelessWidget {
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: hasOngoing
-                      ? () => context.read<AppDataProvider>().markPeriodEnd(day)
+                      ? () async {
+                          final error = await context
+                              .read<AppDataProvider>()
+                              .markPeriodEnd(day);
+                          if (error != null && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(error)));
+                          }
+                        }
                       : null,
                   icon: const Icon(Icons.stop_rounded, size: 20),
                   label: const Text('经期结束'),

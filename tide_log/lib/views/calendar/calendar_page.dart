@@ -7,6 +7,7 @@ import '../../core/theme.dart';
 import '../../models/tags.dart';
 import '../../providers/app_data_provider.dart';
 import '../home/countdown_ring.dart' show CnDateFormatter;
+import '../widgets/add_period_dialog.dart';
 
 /// 日历页：标注 经期/预测经期/排卵日/易孕期/安全期 的月历视图。
 class CalendarPage extends StatefulWidget {
@@ -254,12 +255,47 @@ class _DayDetailCard extends StatelessWidget {
 
   final DateTime day;
 
+  Future<void> _run(BuildContext context, Future<String?> action) async {
+    final error = await action;
+    if (error != null && context.mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(error)));
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final data = context.read<AppDataProvider>();
+    final covering = data.periods.where((r) => r.covers(day)).toList();
+    if (covering.isEmpty) return;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除经期记录'),
+        content: Text(
+            '将删除 ${CnDateFormatter.full(covering.first.startDate)} 开始的一段经期记录。'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('取消')),
+          FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('删除')),
+        ],
+      ),
+    );
+    if (confirmed == true) await data.deletePeriod(covering.first.id);
+  }
+
   @override
   Widget build(BuildContext context) {
     final data = context.watch<AppDataProvider>();
     final log = data.logOn(day);
     final phase = data.prediction.phaseOn(day);
     final cycleDay = data.prediction.cycleDayOn(day);
+    final today = normalizeDate(DateTime.now());
+    final isPastDay = !day.isAfter(today);
+    final ongoing = data.ongoingPeriod;
+    final covering = data.periods.where((r) => r.covers(day)).toList();
 
     return Card(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -308,6 +344,44 @@ class _DayDetailCard extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: 12, color: AppColors.textSecondary)),
               ],
+            ],
+            // 历史补录操作区（仅过去的日期显示）
+            if (isPastDay) ...[
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (covering.isEmpty)
+                    ActionChip(
+                      avatar: const Icon(Icons.play_arrow_rounded, size: 16),
+                      label: const Text('这天开始经期'),
+                      onPressed: () => _run(context,
+                          context.read<AppDataProvider>().markPeriodStart(day)),
+                    ),
+                  if (ongoing != null && !day.isBefore(ongoing.startDate))
+                    ActionChip(
+                      avatar: const Icon(Icons.stop_rounded, size: 16),
+                      label: const Text('在这天结束经期'),
+                      onPressed: () => _run(context,
+                          context.read<AppDataProvider>().markPeriodEnd(day)),
+                    ),
+                  if (covering.isEmpty)
+                    ActionChip(
+                      avatar: const Icon(Icons.history_edu, size: 16),
+                      label: const Text('补录整段经期…'),
+                      onPressed: () => showAddPeriodDialog(context),
+                    ),
+                  if (covering.isNotEmpty)
+                    ActionChip(
+                      avatar: const Icon(Icons.delete_outline,
+                          size: 16, color: AppColors.danger),
+                      label: const Text('删除该经期',
+                          style: TextStyle(color: AppColors.danger)),
+                      onPressed: () => _confirmDelete(context),
+                    ),
+                ],
+              ),
             ],
           ],
         ),

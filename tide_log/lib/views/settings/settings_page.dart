@@ -392,7 +392,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${AppConstants.appName} v0.1.0',
+                    Text('${AppConstants.appName} v1.1.1',
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 8),
