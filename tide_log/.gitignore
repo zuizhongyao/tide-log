@@ -46,3 +46,7 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# 签名相关，绝不入库
+android/key.properties
+android/keystore/
